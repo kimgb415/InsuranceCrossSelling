@@ -1,3 +1,3 @@
 
 COMPETITION_NAME = 'BinaryClassificationofInsuracneCrossSelling'
-DATA_DIR = '.data'
+DATA_DIR = 'data'
