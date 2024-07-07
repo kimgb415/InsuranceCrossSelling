@@ -1,9 +1,11 @@
 import keras
 from keras import layers
 
-def fully_connected_block(x, dense_dimension):
+def fully_connected_block(x, dense_dimension, dropout_rate = 0.1):
     x = layers.Dense(dense_dimension, activation='relu')(x)  # (batch_size, dense_dimension)
+    x = layers.Dropout(dropout_rate)(x)  # (batch_size, dense_dimension)
     x = layers.Dense(dense_dimension)(x)  # (batch_size, dense_dimension)
+    x = layers.Dropout(dropout_rate)(x)  # (batch_size, dense_dimension)
     x = layers.BatchNormalization()(x)  # (batch_size, dense_dimension)
     
     return x
