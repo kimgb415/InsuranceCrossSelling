@@ -1,5 +1,6 @@
 import keras
 from keras import layers
+from keras import callbacks
 
 def fully_connected_block(x, dense_dimension, dropout_rate = 0.1):
     x = layers.Dense(dense_dimension, activation='relu')(x)  # (batch_size, dense_dimension)
@@ -36,3 +37,10 @@ def build_model(input_dimension, dense_dimension, output_dimension):
     model = keras.models.Model(inputs=input_layer, outputs=x)
     
     return model
+
+checkpoint = callbacks.ModelCheckpoint(
+    'checkpoint/model-{epoch:02d}-{val_loss:.2f}.keras', 
+    monitor='val_acc', 
+    verbose=1, 
+    mode='auto'
+)
