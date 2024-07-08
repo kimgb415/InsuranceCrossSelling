@@ -68,6 +68,7 @@ pytz==2024.1
 pyzmq==26.0.3
 requests==2.32.3
 rich==13.7.1
+seaborn==0.13.2
 six==1.16.0
 stack-data==0.6.3
 tensorboard==2.16.2
