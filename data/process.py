@@ -6,7 +6,7 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parent
 
 def read_csv_and_preprocess(file_path: Path):
-    data = pd.read_csv(file_path)
+    data = pd.read_csv(DATA_DIR / file_path)
 
     data = data.dropna()
 
