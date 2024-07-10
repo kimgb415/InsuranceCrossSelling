@@ -1,12 +1,20 @@
 import keras
 from keras import layers
-from keras import callbacks
 
 def fully_connected_block(x, dense_dimension, dropout_rate = 0.1):
-    x = layers.Dense(dense_dimension, activation='relu')(x)  # (batch_size, dense_dimension)
-    x = layers.Dropout(dropout_rate)(x)  # (batch_size, dense_dimension)
-    x = layers.Dense(dense_dimension)(x)  # (batch_size, dense_dimension)
-    x = layers.Dropout(dropout_rate)(x)  # (batch_size, dense_dimension)
+    x = layers.Dense(
+        dense_dimension, 
+        activation='relu', 
+        kernel_regularizer=keras.regularizers.l2(0.01)
+    )(x)  # (batch_size, dense_dimension)
+    # x = layers.Dropout(dropout_rate)(x)  # (batch_size, dense_dimension)
+    x = layers.BatchNormalization()(x)  # (batch_size, dense_dimension)
+    x = layers.Dense(
+        dense_dimension, 
+        activation='relu', 
+        kernel_regularizer=keras.regularizers.l2(0.01)
+    )(x)  # (batch_size, dense_dimension)
+    # x = layers.Dropout(dropout_rate)(x)  # (batch_size, dense_dimension)
     x = layers.BatchNormalization()(x)  # (batch_size, dense_dimension)
     
     return x
@@ -18,11 +26,6 @@ def residual_block(x, dense_dimension):
     
     return x
 
-def output_layer(x, dense_dimension, output_dimension=1):
-    x = layers.Dense(dense_dimension, activation='relu')(x)  # (batch_size, dense_dimension)
-    x = layers.Dense(output_dimension)(x)  # (batch_size, output_dimension)
-    
-    return x
 
 def build_model(input_dimension, dense_dimension, output_dimension):
     input_layer = layers.Input(shape=(input_dimension,))  # (batch_size, input_dimension)
@@ -32,15 +35,8 @@ def build_model(input_dimension, dense_dimension, output_dimension):
     for _ in range(5):
         x = residual_block(x, dense_dimension)  # (batch_size, dense_dimension)
     
-    x = output_layer(x, dense_dimension, output_dimension)  # (batch_size, output_dimension)
+    x = layers.Dense(output_dimension, kernel_regularizer=keras.regularizers.l2(0.01))(x)  # (batch_size, output_dimension)
     
     model = keras.models.Model(inputs=input_layer, outputs=x)
     
     return model
-
-checkpoint = callbacks.ModelCheckpoint(
-    'checkpoint/model-{epoch:02d}-{val_loss:.2f}.keras', 
-    monitor='val_acc', 
-    verbose=1, 
-    mode='auto'
-)
