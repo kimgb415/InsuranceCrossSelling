@@ -1,0 +1,6 @@
+{
+  "block_depth": 3,
+  "dense_dimension": 180,
+  "learning_rate": 0.01,
+  "batch_size": 256
+}

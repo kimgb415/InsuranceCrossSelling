@@ -27,12 +27,12 @@ def residual_block(x, dense_dimension):
     return x
 
 
-def build_model(input_dimension, dense_dimension, output_dimension):
+def build_model(input_dimension, dense_dimension, output_dimension, block_depth=5):
     input_layer = layers.Input(shape=(input_dimension,))  # (batch_size, input_dimension)
     x = input_layer  # (batch_size, input_dimension)
     x = fully_connected_block(x, dense_dimension)  # (batch_size, dense_dimension)
     
-    for _ in range(5):
+    for _ in range(block_depth):
         x = residual_block(x, dense_dimension)  # (batch_size, dense_dimension)
     
     x = layers.Dense(output_dimension, kernel_regularizer=keras.regularizers.l2(0.01))(x)  # (batch_size, output_dimension)
