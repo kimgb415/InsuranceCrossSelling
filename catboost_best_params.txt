@@ -1,0 +1,9 @@
+best params:
+{'bagging_temperature': 0.9678512209625907,
+ 'border_count': 132,
+ 'depth': 10,
+ 'l2_leaf_reg': 0.004500963147330006,
+ 'learning_rate': 0.09796821933223768,
+ 'random_strength': 0}
+best value:
+0.8759807348251343
