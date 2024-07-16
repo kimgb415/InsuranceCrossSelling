@@ -6,7 +6,7 @@ import xgboost as xgb
 import optuna
 
 RANDOM_STATE = 1
-MAX_BIN_CHOICE = [2 ** i - 1 for i in range(12, 20)]
+MAX_BIN_CHOICE = [2 ** i - 1 for i in [15, 18, 20, 22]]
 
 xgb_tunable_hyperparams = {
     # learning_rate (Optional[float]) – Boosting learning rate (xgb’s “eta”)
@@ -21,7 +21,6 @@ xgb_tunable_hyperparams = {
     'subsample': hp.uniform('subsample', 0.6, 1),
     # max_bin (Optional[int]) – If using histogram-based algorithm, maximum number of bins per feature
     "max_bin": hp.choice('max_bin', MAX_BIN_CHOICE),
-    # 'colsample_bytree': 1,
     # 'min_child_weight': 1,
 }
 
@@ -35,21 +34,22 @@ xgb_fixed_params = {
     'device': 'cuda',
     'random_state': RANDOM_STATE,
     'early_stopping_rounds': 50,
-    # Referenced from https://www.kaggle.com/competitions/playground-series-s4e7/discussion/516265
+    # fixed after first case study
+    'learning_rate': 0.05,
+    'gamma': 0.001,
+    'subsample': 0.8,
+    'reg_lambda': 0.2,
+    'max_bin': 32767,
 }
 
 def optuna_objective(trial : optuna.Trial, fixed_params, x_train, y_train, x_test, y_test):
     tunable_params = {
-        'learning_rate': trial.suggest_loguniform('learning_rate', 0.0001, 0.1),
-        'reg_lambda': trial.suggest_loguniform('reg_lambda', 0.01, 0.5),
-        'max_depth': trial.suggest_int('max_depth', 5, 20),
-        'gamma': trial.suggest_loguniform('gamma', 0.000001, 0.01),
-        'subsample': trial.suggest_uniform('subsample', 0.6, 1),
-        'max_bin': trial.suggest_categorical('max_bin', MAX_BIN_CHOICE),
-        'min_child_weight': trial.suggest_int('min_child_weight', 1, 50)
+        'max_depth': trial.suggest_int('max_depth', 10, 30),
+        'min_child_weight': trial.suggest_int('min_child_weight', 25, 60),
+        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.1, 1),
     }
     model = xgb.XGBClassifier(**tunable_params, **fixed_params)
-    result = model.fit(x_train, y_train, eval_set=[(x_test, y_test)], verbose=100)
+    result = model.fit(x_train, y_train, eval_set=[(x_test, y_test)], verbose=250)
     best_validation_auc = max(result.evals_result()['validation_0']['auc'])
 
     return best_validation_auc

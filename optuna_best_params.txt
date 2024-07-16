@@ -1,8 +1,6 @@
 best params:
-{'gamma': 0.0004435815842461935,
- 'learning_rate': 0.05626762520498116,
- 'max_bin': 32767,
- 'max_depth': 19,
- 'min_child_weight': 50,
- 'reg_lambda': 0.037447312768379114,
- 'subsample': 0.9661501940240053}
+{'colsample_bytree': 0.21039136022674532,
+ 'max_depth': 27,
+ 'min_child_weight': 36}
+best value:
+0.8893291346317773
