@@ -1,8 +1,8 @@
 best params:
-{'gamma': 7.2703150408536584e-06,
- 'learning_rate': 0.06155431650319614,
- 'max_bin': 16383,
- 'max_depth': 16,
- 'min_child_weight': 45,
- 'reg_lambda': 0.10368872165746322,
- 'subsample': 0.8228009333575143}
+{'gamma': 0.0004435815842461935,
+ 'learning_rate': 0.05626762520498116,
+ 'max_bin': 32767,
+ 'max_depth': 19,
+ 'min_child_weight': 50,
+ 'reg_lambda': 0.037447312768379114,
+ 'subsample': 0.9661501940240053}
