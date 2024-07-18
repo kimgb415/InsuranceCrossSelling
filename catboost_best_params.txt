@@ -1,9 +1,10 @@
 best params:
-{'bagging_temperature': 0.9678512209625907,
- 'border_count': 132,
- 'depth': 10,
- 'l2_leaf_reg': 0.004500963147330006,
- 'learning_rate': 0.09796821933223768,
- 'random_strength': 0}
+{'auto_class_weights': 'None',
+ 'bagging_temperature': 0.799082572812718,
+ 'depth': 8,
+ 'l2_leaf_reg': 0.002550168787185548,
+ 'leaf_estimation_iterations': 5,
+ 'learning_rate': 0.09507716076269408,
+ 'n_estimators': 893}
 best value:
-0.8759807348251343
+0.25198110674676977
