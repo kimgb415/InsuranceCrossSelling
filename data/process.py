@@ -51,6 +51,28 @@ def retrieve_train_dev_test_for_catboost():
     return train, dev, test
 
 
+def retrieve_train_dev_test_as_category_for_xgboost():
+    train = pd.read_csv(DATA_DIR / 'train.csv')
+    test = pd.read_csv(DATA_DIR / 'test.csv')
+
+    dev = train[ :int(0.01 * len(train))]
+    train = train[int(0.01 * len(train)): ]
+
+    # drop index column
+    train = train.drop(columns=['id'])
+    dev = dev.drop(columns=['id'])
+    test = test.drop(columns=['id'])
+
+    for col in train.columns:
+        if col not in  ['Vehicle_Age', 'Gender', 'Vehicle_Damage']:
+            continue
+        train[col] = train[col].astype('category')
+        dev[col] = dev[col].astype('category')
+        test[col] = test[col].astype('category')
+    
+    return train, dev, test
+
+
 def retrieve_train_dev_test_dataframe():
     train = read_csv_and_preprocess(DATA_DIR / 'train.csv')
     test = read_csv_and_preprocess(DATA_DIR / 'test.csv')
