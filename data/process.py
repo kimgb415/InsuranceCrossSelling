@@ -18,6 +18,39 @@ def read_csv_and_preprocess(file_path: Path):
     return data
 
 
+# preprocessing so that catboost can recognize them as categorical features
+def float64_to_int64(df: pd.DataFrame):
+    # convert all numerical features into integers
+    float64_cols = df.select_dtypes(include=['float64']).columns
+    df[float64_cols] = df[float64_cols].astype('int64')
+
+def retrieve_train_dev_test_for_catboost():
+    train = pd.read_csv(DATA_DIR / 'train.csv')
+    test = pd.read_csv(DATA_DIR / 'test.csv')
+
+    dev = train[ :int(0.01 * len(train))]
+
+    # # oversample the minority class
+    # train_extra = pd.read_csv(DATA_DIR / 'train_extra.csv')
+    # oversampled = train_extra[train_extra['Response'] == 1]
+
+    # train = pd.concat([train[int(0.01 * len(train)): ], oversampled], ignore_index=True)
+    train = train[int(0.01 * len(train)): ]
+
+    # drop index column
+    train = train.drop(columns=['id'])
+    dev = dev.drop(columns=['id'])
+    test = test.drop(columns=['id'])
+
+
+    # convert float64 to int64
+    float64_to_int64(train)
+    float64_to_int64(dev)
+    float64_to_int64(test)
+
+    return train, dev, test
+
+
 def retrieve_train_dev_test_dataframe():
     train = read_csv_and_preprocess(DATA_DIR / 'train.csv')
     test = read_csv_and_preprocess(DATA_DIR / 'test.csv')

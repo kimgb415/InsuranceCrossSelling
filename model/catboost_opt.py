@@ -38,6 +38,7 @@ const_params = {
     'eval_metric': 'Logloss', 
     'custom_metric': ['Logloss'],
     'random_seed': RANDOM_SEED,
+    'use_best_model': True,
     # fixed after tuning
     'random_strength': 0,
 
