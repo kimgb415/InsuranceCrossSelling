@@ -25,6 +25,7 @@ xgb_tunable_hyperparams = {
 }
 
 
+
 xgb_fixed_params = {
     # n_estimators (Optional[int]) – Number of gradient boosted trees. Equivalent to number of boosting rounds.
     'n_estimators': 500,
@@ -33,21 +34,26 @@ xgb_fixed_params = {
     'eval_metric': 'auc',
     'device': 'cuda',
     'random_state': RANDOM_STATE,
-    'early_stopping_rounds': 50,
+    'early_stopping_rounds': 30,
     # fixed after first case study
     'learning_rate': 0.05,
     'gamma': 0.001,
     'subsample': 0.8,
     'reg_lambda': 0.2,
     'max_bin': 32767,
+    # fixed after second case study
+    'max_depth': 27,
+    'min_child_weight': 36,
+    'enable_categorical': True,
 }
 
 def optuna_objective(trial : optuna.Trial, fixed_params, x_train, y_train, x_test, y_test):
     tunable_params = {
-        'max_depth': trial.suggest_int('max_depth', 10, 30),
-        'min_child_weight': trial.suggest_int('min_child_weight', 25, 60),
-        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.1, 1),
+        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.1, 0.75),
+        'colsample_bylevel': trial.suggest_float('colsample_bylevel', 0.1, 0.75),
+        'colsample_bynode': trial.suggest_float('colsample_bynode', 0.1, 0.75),
     }
+    fixed_params['random_state'] = trial.suggest_int('random_state', 1, 42)
     model = xgb.XGBClassifier(**tunable_params, **fixed_params)
     result = model.fit(x_train, y_train, eval_set=[(x_test, y_test)], verbose=250)
     best_validation_auc = max(result.evals_result()['validation_0']['auc'])

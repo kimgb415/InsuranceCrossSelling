@@ -1,6 +1,7 @@
 best params:
-{'colsample_bytree': 0.21039136022674532,
- 'max_depth': 27,
- 'min_child_weight': 36}
+{'colsample_bylevel': 0.2099964772616109,
+ 'colsample_bynode': 0.3252941699059936,
+ 'colsample_bytree': 0.18958328837691527,
+ 'random_state': 5}
 best value:
-0.8893291346317773
+0.8861574825306877
