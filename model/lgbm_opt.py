@@ -4,18 +4,26 @@ import numpy as np
 import pandas as pd
 
 RANDOM_STATE = 1
+MAX_BIN_CHOICE = [2 ** i - 1 for i in [15, 18, 20, 22]]
 
 # https://lightgbm.readthedocs.io/en/stable/Parameters-Tuning.html
 lgbm_fixed_params = {
     'n_estimators': 500,
     'eval_metric': 'auc',
-    'max_bin': 32767,
     'random_state': RANDOM_STATE,
     'early_stopping_rounds': 50,
     'verbosity': -1,
     'num_threads': 12,
+    'max_bin': MAX_BIN_CHOICE[1],
     # https://lightgbm.readthedocs.io/en/latest/GPU-Tutorial.html#gpu-setup
     # "device" : "gpu",
+
+    # Fixed after first tuning
+    'colsample_bytree': 0.25,
+    'learning_rate': 0.1,
+
+    # Fixed after second tuning
+    'reg_lambda': 0.20811008331039144,
 
     # Use less data for faster tuning
     'bagging_freq': 5,
@@ -24,10 +32,10 @@ lgbm_fixed_params = {
 
 def optuna_objective(trial : optuna.Trial, fixed_params, x_train : pd.DataFrame, y_train, x_test, y_test):
     tunable_params = {
-        'learning_rate': trial.suggest_float('learning_rate', 0.005, 0.1),
-        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.1, 0.75),
-        'num_leaves': trial.suggest_int('num_leaves', 64, 256),
-        'max_depth': trial.suggest_int('max_depth', 5, 15),
+        'max_depth' : trial.suggest_int('max_depth', 16, 32),
+        # max num_leaves is 2^7=131072
+        'num_leaves': trial.suggest_categorical('num_leaves', [2 ** i for i in range(10,  16)]),
+        'min_data_in_leaf': trial.suggest_int('min_data_in_leaf', 100, 5000),
     }
 
     cat_features = list(x_train.select_dtypes(include=['object']).columns)

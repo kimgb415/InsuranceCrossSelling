@@ -1,7 +1,4 @@
 best params:
-{'colsample_bytree': 0.2867064388301057,
- 'learning_rate': 0.09924750248020636,
- 'max_depth': 14,
- 'num_leaves': 221}
+{'max_depth': 30, 'min_data_in_leaf': 112, 'num_leaves': 2048}
 best value:
-0.8868189216117127
+0.891336324077625
