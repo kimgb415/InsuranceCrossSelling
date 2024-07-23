@@ -1,8 +1,4 @@
 best params:
-{'boosting_type': 'gbdt',
- 'learning_rate': 0.09693636282059373,
- 'max_bin': 1048575,
- 'reg_lambda': 0.20811008331039144,
- 'scale_pos_weight': 1}
+{'max_depth': 30, 'min_data_in_leaf': 112, 'num_leaves': 2048}
 best value:
-0.886955168692164
+0.891336324077625
