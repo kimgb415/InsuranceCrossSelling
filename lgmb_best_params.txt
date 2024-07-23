@@ -1,7 +1,8 @@
 best params:
-{'colsample_bytree': 0.2867064388301057,
- 'learning_rate': 0.09924750248020636,
- 'max_depth': 14,
- 'num_leaves': 221}
+{'boosting_type': 'gbdt',
+ 'learning_rate': 0.09693636282059373,
+ 'max_bin': 1048575,
+ 'reg_lambda': 0.20811008331039144,
+ 'scale_pos_weight': 1}
 best value:
-0.8868189216117127
+0.886955168692164
