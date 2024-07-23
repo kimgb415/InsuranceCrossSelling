@@ -6,8 +6,8 @@ import pandas as pd
 RANDOM_STATE = 1
 
 # https://lightgbm.readthedocs.io/en/stable/Parameters-Tuning.html
-lgmb_fixed_params = {
-    'num_iterations': 500,
+lgbm_fixed_params = {
+    'n_estimators': 500,
     'eval_metric': 'auc',
     'max_bin': 32767,
     'random_state': RANDOM_STATE,
@@ -20,11 +20,7 @@ lgmb_fixed_params = {
     # Use less data for faster tuning
     'bagging_freq': 5,
     'bagging_fraction': 0.75,
-    }
-
-
-
-
+}
 
 def optuna_objective(trial : optuna.Trial, fixed_params, x_train : pd.DataFrame, y_train, x_test, y_test):
     tunable_params = {
