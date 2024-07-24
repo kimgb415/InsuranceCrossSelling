@@ -1,0 +1,4 @@
+best params:
+{'min_data_in_leaf': 25, 'num_leaves': 4096}
+best value:
+0.8915761642866227

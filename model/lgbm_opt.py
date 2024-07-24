@@ -13,7 +13,7 @@ lgbm_fixed_params = {
     'random_state': RANDOM_STATE,
     'early_stopping_rounds': 50,
     'verbosity': -1,
-    'num_threads': 12,
+    'num_threads': 24,
     'max_bin': MAX_BIN_CHOICE[1],
     # https://lightgbm.readthedocs.io/en/latest/GPU-Tutorial.html#gpu-setup
     # "device" : "gpu",
@@ -25,6 +25,9 @@ lgbm_fixed_params = {
     # Fixed after second tuning
     'reg_lambda': 0.20811008331039144,
 
+    # Fixed after third tuning
+    'max_depth' : 32,
+
     # Use less data for faster tuning
     'bagging_freq': 5,
     'bagging_fraction': 0.75,
@@ -32,10 +35,9 @@ lgbm_fixed_params = {
 
 def optuna_objective(trial : optuna.Trial, fixed_params, x_train : pd.DataFrame, y_train, x_test, y_test):
     tunable_params = {
-        'max_depth' : trial.suggest_int('max_depth', 16, 32),
         # max num_leaves is 2^7=131072
-        'num_leaves': trial.suggest_categorical('num_leaves', [2 ** i for i in range(10,  16)]),
-        'min_data_in_leaf': trial.suggest_int('min_data_in_leaf', 100, 5000),
+        'num_leaves': trial.suggest_categorical('num_leaves', [2 ** i for i in range(5,  16)]),
+        'min_data_in_leaf': trial.suggest_int('min_data_in_leaf', 5, 200),
     }
 
     cat_features = list(x_train.select_dtypes(include=['object']).columns)

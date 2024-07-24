@@ -1,4 +1,0 @@
-best params:
-{'max_depth': 30, 'min_data_in_leaf': 112, 'num_leaves': 2048}
-best value:
-0.891336324077625
