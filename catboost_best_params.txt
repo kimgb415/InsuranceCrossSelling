@@ -1,10 +1,9 @@
 best params:
-{'auto_class_weights': 'None',
- 'bagging_temperature': 0.799082572812718,
- 'depth': 8,
- 'l2_leaf_reg': 0.002550168787185548,
- 'leaf_estimation_iterations': 5,
- 'learning_rate': 0.09507716076269408,
- 'n_estimators': 893}
+{'bagging_temperature': 0.5087874319771577,
+ 'depth': 9,
+ 'l2_leaf_reg': 0.005010366709600069,
+ 'leaf_estimation_iterations': 10,
+ 'min_data_in_leaf': 186,
+ 'scale_pos_weight': 1.0055890050385794}
 best value:
-0.25198110674676977
+0.2398511606254606

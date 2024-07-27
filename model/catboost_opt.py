@@ -6,6 +6,36 @@ import numpy as np
 
 RANDOM_SEED = 1
 
+
+def objective(trial : optuna.Trial, fixed_params: dict, X_train, Y_train, X_test, Y_test):
+    cat_features = [i for i in range(X_train.shape[1])]
+    dataset = cb.Pool(
+        data=X_train,
+        label=Y_train,
+        cat_features=cat_features
+    )
+
+    scale_pos_weight = np.sum(Y_train == 0) / np.sum(Y_train == 1)
+    params = {
+        **fixed_params,
+        'learning_rate': 0.15,
+        'early_stopping_rounds': 50,
+        'n_estimators': 400,
+
+        # Maximum tree depth is 16
+        'depth': trial.suggest_int('depth', 6, 16),
+        'l2_leaf_reg': trial.suggest_float('l2_leaf_reg', 0.0001, 10, log=True),
+        'bagging_temperature': trial.suggest_float('bagging_temperature', 0.01, 100, log=True),
+        'min_data_in_leaf': trial.suggest_int('min_data_in_leaf', 5, 200),
+        'leaf_estimation_iterations': trial.suggest_int('leaf_estimation_iterations', 1, 10),
+        'scale_pos_weight': trial.suggest_float('scale_pos_weight', 1, scale_pos_weight),
+    }
+
+    model = cb.CatBoostClassifier(**params)
+    model.fit(dataset, verbose=200, eval_set=(X_test, Y_test))    
+
+    return model.best_score_['validation']['Logloss']
+
 def catboost_optuna_objective(trial : optuna.Trial, dataset: cb.Pool, fixed_params: dict):
     scores = cb.cv(
         pool=dataset,
