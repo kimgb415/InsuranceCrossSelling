@@ -17,6 +17,20 @@ def read_csv_and_preprocess(file_path: Path):
 
     return data
 
+def target_encode_categorical_features(
+    train_df: pd.DataFrame, 
+    valid_df: pd.DataFrame, 
+    test_df: pd.DataFrame, 
+):
+    for col in train_df.columns.values:
+        if col not in ['Vehicle_Age', 'Vehicle_Damage', 'Gender']:
+            continue
+    
+        target_mean = train_df.groupby(col)['Response'].mean()
+        train_df[col] = train_df[col].map(target_mean)
+        valid_df[col] = valid_df[col].map(target_mean)
+        test_df[col] = test_df[col].map(target_mean)
+
 
 def retrieve_validation_dataset_for_xgboost():
     valid = pd.read_csv(DATA_DIR / 'train_extra.csv')
