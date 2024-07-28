@@ -4,3 +4,4 @@ checkpoint
 catboost_info
 xgboost_*.json
 *.cbm
+lgbm_model_save
