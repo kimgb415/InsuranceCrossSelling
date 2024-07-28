@@ -18,6 +18,26 @@ def read_csv_and_preprocess(file_path: Path):
     return data
 
 
+def retrieve_validation_dataset_for_xgboost():
+    valid = pd.read_csv(DATA_DIR / 'train_extra.csv')
+    for col in valid.columns:
+        if col not in  ['Vehicle_Age', 'Gender', 'Vehicle_Damage']:
+            continue
+        valid[col] = valid[col].astype('category')
+    
+    return valid.drop(columns=['id', 'Response']), valid['Response']
+
+def retrieve_validation_dataset_for_catboost():
+    valid = pd.read_csv(DATA_DIR / 'train_extra.csv')
+
+    for col in valid.columns:
+        if valid[col].dtype == 'object':
+            continue
+        valid[col] = valid[col].astype('int32')
+
+    return valid.drop(columns=['id', 'Response']), valid['Response']
+
+
 # preprocessing so that catboost can recognize them as categorical features
 def float64_to_int64(df: pd.DataFrame):
     # convert all numerical features into integers
