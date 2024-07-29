@@ -105,6 +105,7 @@ def get_parser():
     parser = ArgumentParser()
     parser.add_argument('--tune', action='store_true', help='Run hyperparameter tuning')
     parser.add_argument('--inference', action='store_true', help='Run inference')
+    parser.add_argument('--training', action='store_true', help='Train from scratch')
 
     return parser
 

@@ -80,7 +80,7 @@ def objective(trial : optuna.Trial, X_train, y_train, X_test, y_test):
     return max(model.history['valid_auc'])
 
 
-def tabnet_inference(X_train: pd.DataFrame, X_test, y_train, y_test):
+def tabnet_training(X_train: pd.DataFrame, X_test, y_train, y_test):
     # aug = ClassificationSMOTE(p=0.2)
 
     cat_idx = [i for i, col in enumerate(X_train.columns) if col in X_train.select_dtypes(include=['object']).columns]
@@ -92,10 +92,10 @@ def tabnet_inference(X_train: pd.DataFrame, X_test, y_train, y_test):
 
     params = {
         "optimizer_fn":torch.optim.Adam,
-        "optimizer_params":dict(lr=0.1),
+        "optimizer_params":dict(lr=0.05),
         "scheduler_params":{
-            "step_size": 3,
-            "gamma":0.5
+            "step_size": 5,
+            "gamma":0.8
         },
         "scheduler_fn":torch.optim.lr_scheduler.StepLR,
         # "mask_type":'entmax', # "sparsemax"
@@ -103,11 +103,13 @@ def tabnet_inference(X_train: pd.DataFrame, X_test, y_train, y_test):
         'seed':SEED,
 
         # Tuned
-        'n_d':24,
-        'n_a':24,
+        'n_d':64,
+        'n_a':64,
+        'n_steps': 5,
         'gamma': 1.0128779115960516,
         'n_independent': 4,
         'n_shared': 5,
+        'lambda_sparse': 0.0001,
     }
 
     
@@ -121,8 +123,8 @@ def tabnet_inference(X_train: pd.DataFrame, X_test, y_train, y_test):
     model.fit(
         X_train=X_train.values, y_train=y_train.values, 
         eval_set=[(X_test.values, y_test.values)], eval_name=['valid'], eval_metric=['auc'], 
-        max_epochs=10, patience=5, 
-        batch_size=8192, virtual_batch_size=128, 
+        max_epochs=50, patience=10, 
+        batch_size=16384, virtual_batch_size=128, 
         num_workers=0, 
         drop_last=False,
         compute_importance=False,
@@ -131,15 +133,16 @@ def tabnet_inference(X_train: pd.DataFrame, X_test, y_train, y_test):
 
     pass
 
+
 def main(args):
     X_train, X_test, y_train, y_test = generate_train_test_data()
     X_train = tabnet_data_preprocess(X_train)
     X_test = tabnet_data_preprocess(X_test)
     if args.tune:
         pass
-    elif args.inference:
+    elif args.training:
         # convert pandas to numpy
-        tabnet_inference(X_train, X_test, y_train, y_test)
+        tabnet_training(X_train, X_test, y_train, y_test)
         pass
 
 
