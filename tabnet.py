@@ -92,13 +92,13 @@ def tabnet_training(X_train: pd.DataFrame, X_test, y_train, y_test):
 
     params = {
         "optimizer_fn":torch.optim.Adam,
-        "optimizer_params":dict(lr=0.05),
+        "optimizer_params":dict(lr=0.1),
         "scheduler_params":{
             "step_size": 5,
-            "gamma":0.8
+            "gamma":0.5
         },
         "scheduler_fn":torch.optim.lr_scheduler.StepLR,
-        # "mask_type":'entmax', # "sparsemax"
+        "mask_type":'entmax',
         'device_name':'cuda',
         'seed':SEED,
 
@@ -123,8 +123,8 @@ def tabnet_training(X_train: pd.DataFrame, X_test, y_train, y_test):
     model.fit(
         X_train=X_train.values, y_train=y_train.values, 
         eval_set=[(X_test.values, y_test.values)], eval_name=['valid'], eval_metric=['auc'], 
-        max_epochs=50, patience=10, 
-        batch_size=16384, virtual_batch_size=128, 
+        max_epochs=25, patience=10, 
+        batch_size=16384, virtual_batch_size=1024, 
         num_workers=0, 
         drop_last=False,
         compute_importance=False,
