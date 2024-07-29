@@ -16,10 +16,10 @@ SEED = 1
 
 tabnet_params = {
     "optimizer_fn":torch.optim.Adam,
-    "optimizer_params":dict(lr=1e-1),
+    "optimizer_params":dict(lr=2e-2),
     "scheduler_params":{
-        "step_size":10,
-        "gamma":0.5
+        "step_size":50, # how to use learning rate scheduler
+        "gamma":0.9
     },
     "scheduler_fn":torch.optim.lr_scheduler.StepLR,
     # "mask_type":'entmax', # "sparsemax"
@@ -89,9 +89,30 @@ def tabnet_inference(X_train: pd.DataFrame, X_test, y_train, y_test):
     X_merged = pd.concat([X_train, X_test])
     cat_dims = [len(X_merged[col].unique()) for col in cat_idx]
     emb_dims = [min(20, (x + 1) // 2) for x in cat_dims]
+
+    params = {
+        "optimizer_fn":torch.optim.Adam,
+        "optimizer_params":dict(lr=0.1),
+        "scheduler_params":{
+            "step_size": 3,
+            "gamma":0.5
+        },
+        "scheduler_fn":torch.optim.lr_scheduler.StepLR,
+        # "mask_type":'entmax', # "sparsemax"
+        'device_name':'cuda',
+        'seed':SEED,
+
+        # Tuned
+        'n_d':24,
+        'n_a':24,
+        'gamma': 1.0128779115960516,
+        'n_independent': 4,
+        'n_shared': 5,
+    }
+
     
     model = TabNetClassifier(
-        **tabnet_params,
+        **params,
         cat_idxs=cat_idx,
         cat_dims=cat_dims,
         cat_emb_dim=emb_dims,
@@ -100,10 +121,11 @@ def tabnet_inference(X_train: pd.DataFrame, X_test, y_train, y_test):
     model.fit(
         X_train=X_train.values, y_train=y_train.values, 
         eval_set=[(X_test.values, y_test.values)], eval_name=['valid'], eval_metric=['auc'], 
-        max_epochs=2, patience=50, 
-        batch_size=1024, virtual_batch_size=128, 
+        max_epochs=10, patience=5, 
+        batch_size=8192, virtual_batch_size=128, 
         num_workers=0, 
         drop_last=False,
+        compute_importance=False,
     )
     model.save_model('tabnet_model')
 
