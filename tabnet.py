@@ -14,7 +14,7 @@ from pprint import pprint
 
 SEED = 1
 
-tabnet_params = {
+tabnet_tuning_params = {
     "optimizer_fn":torch.optim.Adam,
     "optimizer_params":dict(lr=2e-2),
     "scheduler_params":{
@@ -22,9 +22,13 @@ tabnet_params = {
         "gamma":0.9
     },
     "scheduler_fn":torch.optim.lr_scheduler.StepLR,
-    # "mask_type":'entmax', # "sparsemax"
     'device_name':'cuda',
     'seed':SEED,
+    
+    # tuned
+    'gamma': 1.0128779115960516,
+    'n_independent': 4,
+    'n_shared': 5,
 }
 
 
@@ -45,12 +49,12 @@ def objective(trial : optuna.Trial, X_train, y_train, X_test, y_test):
     emb_dims = [min(20, (x + 1) // 2) for x in cat_dims]
 
     params = {
-        **tabnet_params,
-        'n_d': trial.suggest_int('n_d', 8, 64),
-        'n_steps': trial.suggest_int('n_steps', 3, 20),
-        'gamma': trial.suggest_float('gamma', 1.0, 2.0),
-        'n_independent': trial.suggest_int('n_independent', 1, 5),
-        'n_shared': trial.suggest_int('n_shared', 1, 5)
+        **tabnet_tuning_params,
+        'n_d': trial.suggest_int('n_b', 20, 64),
+        'n_steps': trial.suggest_int('n_steps', 3, 10),
+        'gamma': trial.suggest_float('gamma', 0.5, 3.0),
+        'momentum': trial.suggest_float('momentum', 0.01, 0.4),
+        'lambda_sparse': trial.suggest_float('lambda_sparse', 1e-7, 1e-3),
     }
 
     # According to the paper n_d=n_a is usually a good choice.
@@ -63,19 +67,19 @@ def objective(trial : optuna.Trial, X_train, y_train, X_test, y_test):
         cat_emb_dim=emb_dims,
     )
 
+    batch_size = trial.suggest_categorical('batch_size', [4096, 8192, 16384, 32768])
+    virutal_batch_size = batch_size // 4
+
     model.fit(
         X_train=X_train.values, y_train=y_train.values, 
         eval_set=[(X_test.values, y_test.values)], eval_name=['valid'], eval_metric=['auc'], 
-        max_epochs=3, 
-        patience=50, 
-        batch_size=trial.suggest_categorical('batch_size', [1024, 2048, 4096]), 
-        virtual_batch_size=128, 
+        max_epochs=1, 
+        batch_size=batch_size,
+        virtual_batch_size=virutal_batch_size,
         drop_last=False,
         # feature importance computing is extremely slow
         compute_importance=False,
     )
-
-    pprint(model.history)
 
     return max(model.history['valid_auc'])
 
