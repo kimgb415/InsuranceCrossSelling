@@ -29,8 +29,8 @@ lgbm_fixed_params = {
     'max_depth' : 32,
 
     # Use less data for faster tuning
-    # 'bagging_freq': 5,
-    # 'bagging_fraction': 0.75,
+    'bagging_freq': 5,
+    'bagging_fraction': 0.75,
 }
 
 def optuna_objective(trial : optuna.Trial, fixed_params, x_train : pd.DataFrame, y_train, x_test, y_test):
