@@ -84,6 +84,25 @@ def train_meta_model(train_predictions, valid_predictions, y_train, y_valid):
 
     return model
 
+const_params = {
+    'task_type': 'GPU',
+    'loss_function': 'Logloss',
+    'eval_metric': 'AUC', 
+    'custom_metric': ['AUC'],
+    'random_seed': SEED,
+    'use_best_model': True,
+    # fixed after tuning
+    'random_strength': 0,
+
+    # --------------- Speed Up Training -------------
+    'bootstrap_type': 'Bayesian',
+    # Ordered — Usually provides better quality on small datasets, but it may be slower than the Plain scheme.
+    # Plain — The classic gradient boosting scheme.
+    'boosting_type': 'Plain',
+    # Try to set border_count of this parameter to 32 if training is performed on GPU. 
+    # In many cases, this does not affect the quality of the model but significantly speeds up the training.
+    'border_count': 32,
+}
 
 def objective(trial: optuna.Trial, train_predictions, valid_predictions, y_train, y_valid):
     dataset = cb.Pool(
@@ -91,39 +110,18 @@ def objective(trial: optuna.Trial, train_predictions, valid_predictions, y_train
         label=y_train,
     )
 
-    const_params = {
-        'task_type': 'GPU',
-        'loss_function': 'Logloss',
-        'eval_metric': 'AUC', 
-        'custom_metric': ['AUC'],
-        'random_seed': SEED,
-        'use_best_model': True,
-        # fixed after tuning
-        'random_strength': 0,
-
-        # --------------- Speed Up Training -------------
-        'bootstrap_type': 'Bayesian',
-        # Ordered — Usually provides better quality on small datasets, but it may be slower than the Plain scheme.
-        # Plain — The classic gradient boosting scheme.
-        'boosting_type': 'Plain',
-        # Try to set border_count of this parameter to 32 if training is performed on GPU. 
-        # In many cases, this does not affect the quality of the model but significantly speeds up the training.
-        'border_count': 32,
-    }
-
     params = {
         **const_params,
         'n_estimators': 600,
-        'learning_rate': trial.suggest_float('learning_rate', 0.001, 0.15),
+        'learning_rate': trial.suggest_float('learning_rate', 0.0001, 0.15),
         # Maximum tree depth is 16
-        'depth': trial.suggest_int('depth', 6, 16),
-        'l2_leaf_reg': trial.suggest_float('l2_leaf_reg', 0.0001, 0.1, log=True),
-        'bagging_temperature': trial.suggest_float('bagging_temperature', 0.75, 1),
+        'depth': trial.suggest_int('depth', 2, 8),
+        'l2_leaf_reg': trial.suggest_float('l2_leaf_reg', 0.001, 0.05, log=True),
         # for imbalanced datasets
-        'auto_class_weights': trial.suggest_categorical('auto_class_weights', ['None', 'Balanced', 'SqrtBalanced']),
-        'early_stopping_rounds': 100,
-        # Try setting leaf_estimation_iterations to 1 or 5 to speed up the training on datasets with a small number of features.
-        'leaf_estimation_iterations': trial.suggest_categorical('leaf_estimation_iterations', [1, 5]),
+        'early_stopping_rounds': 200,
+        'random_strength': trial.suggest_float('random_strength', 0, 5),
+        'min_data_in_leaf': trial.suggest_int('min_data_in_leaf', 100, 1000),
+        'border_count': trial.suggest_int('border_count', 32, 255),
     }
 
     model = cb.CatBoostClassifier(**params)
