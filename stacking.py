@@ -128,3 +128,29 @@ def objective(trial: optuna.Trial, train_predictions, valid_predictions, y_train
     model.fit(dataset, verbose=300, eval_set=(valid_predictions, y_valid))
 
     return model.best_score_['validation']['AUC']
+
+
+def xgb_objective(trial: optuna.Trial, train_predictions, valid_predictions, y_train, y_valid):
+    model = xgb.XGBClassifier(
+        # tunable
+        colsample_bytree=trial.suggest_float('colsample_bytree', 0.1, 0.75),
+        learning_rate=trial.suggest_float('learning_rate', 0.0001, 0.15),
+        max_depth=trial.suggest_int('max_depth', 6, 16),
+        gamma=trial.suggest_float('gamma', 0.000001, 0.01, log=True),
+        reg_lambda=trial.suggest_float('reg_lambda', 0.001, 0.5, log=True),
+        subsample=trial.suggest_float('subsample', 0.6, 1),
+        min_child_weight=trial.suggest_int('min_child_weight', 1, 100),
+
+        # fixed
+        tree_method='hist',
+        eval_metric='auc',
+        objective='binary:logistic',
+        random_state=SEED,
+        device='cuda',
+        n_estimators=500,
+        early_stopping_rounds=100,
+    )
+
+    model.fit(train_predictions, y_train, eval_set=[(valid_predictions, y_valid)], verbose=250)
+
+    return max(model.evals_result()['validation_0']['auc'])
